@@ -26,7 +26,7 @@
 
 (linux-only
   (defn cpu []
-    (let [cpuinfo (filename->string "/proc/cpuinfo")
+    (let [cpuinfo &(filename->string "/proc/cpuinfo")
           pattern #"model name\s+:\s+(.*+)"]
       (get-match pattern cpuinfo))))
 
