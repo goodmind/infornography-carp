@@ -1,0 +1,5 @@
+(local-include "../getenv.h")
+
+(defmodule Env
+  (register getenv (Fn [&String] String))
+)

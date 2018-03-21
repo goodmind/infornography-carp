@@ -1,0 +1,118 @@
+(load "getenv.carp")
+(load "popen.carp")
+(use-all IO Pattern Env Popen Array)
+
+(defn env [name]
+  (let [var (getenv name)] 
+    (if (= &var "")
+      @"Unknown."
+      var)))
+
+(defn c-> [cmd]
+  (trim &(popen cmd)))
+
+(defn filename->string [file]
+  (read-file file))
+
+(defn hostname []
+  (c-> "hostname"))
+
+(mac-only
+  (defn cpu []
+    (c-> "sysctl -n machdep.cpu.brand_string")))
+
+(linux-only
+  (defn cpu []
+    (let [cpuinfo (filename->string "/proc/cpuinfo")
+          pattern #"model name\s+:\s+(.*+)"]
+      (get-match pattern cpuinfo))))
+
+(defn kernel []
+  (c-> "uname -s"))
+
+(defn os []
+  (let [os-name &(c-> "sw_vers -productName")
+        os-version &(c-> "sw_vers -productVersion")]
+    (fmt "%s %s" os-name os-version)))
+
+(defn get-match [pattern string]
+  (first &(match pattern string)))
+
+(defn memory-make-pattern [name]
+  (init &(append name @":[\\s]+([\\d]+)")))
+
+(linux-only
+  (defn memory-parse [num]
+    (/ num 1000l)))
+
+(mac-only
+  (defn memory-parse [num]
+    (/ (/ (* num 4096l) 1024l) 1024l)))
+
+(defn get-mem-field [field meminfo]
+  (get-match &(memory-make-pattern field) meminfo))
+
+(linux-only
+  (defn memory-information []
+    (let [meminfo &(filename->string "/proc/meminfo")
+          total (get-mem-field @"MemTotal" meminfo)
+          free (get-mem-field @"MemFree" meminfo)
+          cached (get-mem-field @"Cached" meminfo)]
+    (endo-map memory-parse [
+      (Long.from-string &total), 
+      (Long.from-string &free), 
+      (Long.from-string &cached)
+    ]))))
+
+(mac-only
+  (defn memory-information []
+    (let [meminfo &(c-> "vm_stat")
+          total-pages (/ (Long.from-string &(c-> "sysctl -n hw.memsize")) 4096l)
+          total  (fmt "%d" total-pages)
+          free   (get-mem-field @"Pages free" meminfo)
+          speculative (get-mem-field @"Pages speculative" meminfo)]
+
+      (endo-map memory-parse [
+        (Long.from-string &total),
+        (Long.from-string &free),
+        (Long.from-string &speculative)
+      ]))))
+
+(defn memory []
+  (let [meminfo &(memory-information)
+        total       @(nth meminfo 0)
+        free        @(nth meminfo 1)
+        speculative @(nth meminfo 2)
+        used        (- total (+ free speculative))]
+    (fmt "%dM/%dM" used total)))
+
+(defn data []
+  (fmt "\n\
+                  .......\n\
+              ...............           %s@%s\n\
+            ....................        Shell: %s\n\
+          .........................     Memory: %s\n\
+         ...........................    Kernel: %s\n\
+        .............................   OS: %s\n\
+       ...............................  Terminal: %s\n\
+       ..............x................  CPU: %s\n\
+       ............xo@................\n\
+       ...........xoo@xxx.............\n\
+      ........o@oxxoo@@@@@@x..xx.....\n\
+       .....xo@oo...o@@@@@@x...o\\./.\n\
+       ....o@@@@@@@@@@@@@@@@@@@o.\\..\n\
+       .....x@@@@@@@@@@@o@@@@@@x/.\\.\n\
+        ......@@@@@@@@@@o@@@@@x....\n\
+        .......@@@@@@@@o@@@@o......\n\
+             .x@@@@@@@@@@ox.. .....\n\
+            .@@@@@@@ooooxxxo.   ...\n\
+         ...x@@@@@@@@@ooooo@... ..\n\
+      ........@@@@@@@....xoo........\n\
+   .............@@@....................\n\
+........................................\n\
+....................x..x................\n\
+\n" &(env "USER") &(hostname) &(env "SHELL") &(memory) &(kernel) &(os) &(env "TERM") &(cpu)))
+
+(defn main []
+  (do
+    (println &(data))))

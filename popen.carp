@@ -1,0 +1,5 @@
+(local-include "../popen.h")
+
+(defmodule Popen
+  (register popen (Fn [&String] String))
+)
