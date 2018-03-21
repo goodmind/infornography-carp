@@ -49,7 +49,7 @@
 
 (linux-only
   (defn os []
-    "Linux"))
+    @"Linux"))
 
 (defn memory-make-pattern [name]
   (init &(append name @":[\\s]+([\\d]+)")))
