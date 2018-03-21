@@ -29,7 +29,7 @@
     (let [cpuinfo &(filename->string "/proc/cpuinfo")
           pattern #"model name\s+:\s+(.*+)"]
       (do
-        (println pattern)
+        (println &(str pattern))
         (println cpuinfo)
         (get-match pattern cpuinfo)))))
 
