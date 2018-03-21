@@ -17,6 +17,9 @@
 (defn hostname []
   (c-> "hostname"))
 
+(defn get-match [pattern string]
+  (first &(match pattern string)))
+
 (mac-only
   (defn cpu []
     (c-> "sysctl -n machdep.cpu.brand_string")))
@@ -34,9 +37,6 @@
   (let [os-name &(c-> "sw_vers -productName")
         os-version &(c-> "sw_vers -productVersion")]
     (fmt "%s %s" os-name os-version)))
-
-(defn get-match [pattern string]
-  (first &(match pattern string)))
 
 (defn memory-make-pattern [name]
   (init &(append name @":[\\s]+([\\d]+)")))
