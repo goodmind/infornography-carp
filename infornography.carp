@@ -41,10 +41,15 @@
 (defn kernel []
   (c-> "uname -s"))
 
-(defn os []
-  (let [os-name &(c-> "sw_vers -productName")
-        os-version &(c-> "sw_vers -productVersion")]
-    (fmt "%s %s" os-name os-version)))
+(mac-only
+  (defn os []
+    (let [os-name &(c-> "sw_vers -productName")
+          os-version &(c-> "sw_vers -productVersion")]
+      (fmt "%s %s" os-name os-version))))
+
+(linux-only
+  (defn os []
+    "Linux"))
 
 (defn memory-make-pattern [name]
   (init &(append name @":[\\s]+([\\d]+)")))
