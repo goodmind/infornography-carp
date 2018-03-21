@@ -28,7 +28,10 @@
   (defn cpu []
     (let [cpuinfo &(filename->string "/proc/cpuinfo")
           pattern #"model name\s+:\s+(.*+)"]
-      (get-match pattern cpuinfo))))
+      (do
+        (println pattern)
+        (println cpuinfo)
+        (get-match pattern cpuinfo)))))
 
 (defn kernel []
   (c-> "uname -s"))
