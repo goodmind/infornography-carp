@@ -2,6 +2,11 @@
 (load "popen.carp")
 (use-all IO Pattern Env Popen Array)
 
+(defn safe-first [arr]
+  (if (= (Array.count arr) 0)
+    @"Unknown."
+    (first arr)))
+
 (defn env [name]
   (let [var (getenv name)] 
     (if (= &var "")
@@ -18,7 +23,7 @@
   (c-> "hostname"))
 
 (defn get-match [pattern string]
-  (first &(match pattern string)))
+  (safe-first &(match pattern string)))
 
 (mac-only
   (defn cpu []
