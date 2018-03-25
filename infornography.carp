@@ -16,9 +16,6 @@
 (defn c-> [cmd]
   (trim &(popen cmd)))
 
-(defn filename->string [file]
-  (read-file file))
-
 (defn hostname []
   (c-> "hostname"))
 
@@ -31,28 +28,23 @@
 
 (linux-only
   (defn cpu []
-    (let [cpuinfo &(filename->string "/proc/cpuinfo")
-          pattern #"model name\s+:\s+(.*+)"]
-      (do
-        (println &(str pattern))
-        (println cpuinfo)
-        @"Unknown."))))
+    (c-> "uname -p")))
 
 (defn kernel []
   (c-> "uname -s"))
 
 (mac-only
-  (defn os []
-    (let [os-name &(c-> "sw_vers -productName")
-          os-version &(c-> "sw_vers -productVersion")]
-      (fmt "%s %s" os-name os-version))))
+  (defn os-name []
+    (let [name &(c-> "sw_vers -productName")
+          version &(c-> "sw_vers -productVersion")]
+      (fmt "%s %s" name version))))
 
 (linux-only
-  (defn os []
+  (defn os-name []
     @"Linux"))
 
 (defn memory-make-pattern [name]
-  (init &(append name @":[\\s]+([\\d]+)")))
+  (init &(append name @":\\s+(\\d+)")))
 
 (linux-only
   (defn memory-parse [num]
@@ -67,7 +59,7 @@
 
 (linux-only
   (defn memory-information []
-    (let [meminfo &(filename->string "/proc/meminfo")
+    (let [meminfo &(read->EOF "/proc/meminfo")
           total (get-mem-field @"MemTotal" meminfo)
           free (get-mem-field @"MemFree" meminfo)
           cached (get-mem-field @"Cached" meminfo)]
@@ -91,12 +83,20 @@
         (Long.from-string &speculative)
       ]))))
 
+(defmacro case-os [a b c]
+  (if (= "darwin" (os)) 
+    a 
+    (if (= "linux" (os)) b c)))
+
 (defn memory []
   (let [meminfo &(memory-information)
         total       @(nth meminfo 0)
         free        @(nth meminfo 1)
         speculative @(nth meminfo 2)
-        used        (- total (+ free speculative))]
+        used        (case-os
+                      (- total (+ free speculative))
+                      (- total (- free speculative))
+                      0)]
     (fmt "%dM/%dM" used total)))
 
 (defn data []
@@ -124,7 +124,7 @@
    .............@@@....................\n\
 ........................................\n\
 ....................x..x................\n\
-\n" &(env "USER") &(hostname) &(env "SHELL") &(memory) &(kernel) &(os) &(env "TERM") &(cpu)))
+\n" &(env "USER") &(hostname) &(env "SHELL") &(memory) &(kernel) &(os-name) &(env "TERM") &(cpu)))
 
 (defn main []
   (do
