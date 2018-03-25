@@ -35,7 +35,7 @@ install:
 
 script:
 - carp -b infornography.carp
-- ls
+- ls out
 
 # deploy:
 #   provider: releases
