@@ -4,6 +4,7 @@ language: generic
 cache:
   directories:
   - $HOME/.stack
+  - $HOME/Carp
 
 addons:
   apt:
@@ -19,6 +20,8 @@ before_install:
 install:
 - echo "install"
 - stack
+- pwd
+- echo $HOME
 
 script:
 - echo "script"
