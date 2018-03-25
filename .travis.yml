@@ -22,27 +22,24 @@ before_install:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install haskell-stack; fi
 - git clone https://github.com/carp-lang/Carp $HOME/Carp || true
+
+install:
+- echo "install"
 - cd $HOME/Carp
 - stack build
 - stack install
 - cd -
 - export CARP_DIR=$HOME/Carp
 
-install:
-- echo "install"
-- stack
-- pwd
-
 script:
-- carp -b infornography.carp
-- ls out
+- bash ./build.sh
 
-# deploy:
-#   provider: releases
-#   api_key:
-#     secure: CSolmhCfc5ggbDtpLsazh0PCxgYkc9Yqrvw2mJqJRb4HIAB6l3dSk1kogFvQRZFSr65ljWzaJSTE1nTCg/e7RtxriOzYzO74/iaeTh2focs9fIdZWL/EMotXZm2RuwmxzZMRxg9qDHLZFyNqPiRz0u+ce8HvBFV4ZRoxQfRsZzA0FnzGpjSZGHQVRuQCyN/LtiFpDVuGuB4QjLE8Kj/PRpwpiLdp+44Ji9C8rafOIiWBpCKiigCfzQbNyDRfv355U/gxfVcBdTCPQNGCriT+fXmbIahTf2+RuYeif4jQ3vg5HEM/ncp2IdReLcy31hVhrcG9pMRaZkA4OXMczxnJH5O+RiP404kn80+sJ90+ZBRJc6cGH4hbTCO/t3iK1bqgVYY7DaPbVV7LFd64fo1KSr+JEwdOibRAvCh97nfj4NkewXztG9LHscLw9beZ77BrXWGEJKbj210/g+z7+tVC2ub6H735FB9FzW6DB+aMJDvE7R/T4grC1MOvElugQvxhHSAsx7Ri3R7xoREgzcsrnT3wn/c7X7LTkeYTMnzYjccayPTSZ2r98M0BWgGSUuC/4o7a0WzVI6U3zQPgbeAgygEB1BG0NnWhQ8OGRD28uoiuxMcQizamE/2rFo7n1cWwxnxsZ+1kQkt7P40rEaLV6q2sblTuU/izkJFcq4RX568=
-#   file: ''
-#   skip_cleanup: true
-#   on:
-#     tags: true
-#     repo: goodmind/infornography-carp
+deploy:
+  provider: releases
+  api_key:
+    secure: CSolmhCfc5ggbDtpLsazh0PCxgYkc9Yqrvw2mJqJRb4HIAB6l3dSk1kogFvQRZFSr65ljWzaJSTE1nTCg/e7RtxriOzYzO74/iaeTh2focs9fIdZWL/EMotXZm2RuwmxzZMRxg9qDHLZFyNqPiRz0u+ce8HvBFV4ZRoxQfRsZzA0FnzGpjSZGHQVRuQCyN/LtiFpDVuGuB4QjLE8Kj/PRpwpiLdp+44Ji9C8rafOIiWBpCKiigCfzQbNyDRfv355U/gxfVcBdTCPQNGCriT+fXmbIahTf2+RuYeif4jQ3vg5HEM/ncp2IdReLcy31hVhrcG9pMRaZkA4OXMczxnJH5O+RiP404kn80+sJ90+ZBRJc6cGH4hbTCO/t3iK1bqgVYY7DaPbVV7LFd64fo1KSr+JEwdOibRAvCh97nfj4NkewXztG9LHscLw9beZ77BrXWGEJKbj210/g+z7+tVC2ub6H735FB9FzW6DB+aMJDvE7R/T4grC1MOvElugQvxhHSAsx7Ri3R7xoREgzcsrnT3wn/c7X7LTkeYTMnzYjccayPTSZ2r98M0BWgGSUuC/4o7a0WzVI6U3zQPgbeAgygEB1BG0NnWhQ8OGRD28uoiuxMcQizamE/2rFo7n1cWwxnxsZ+1kQkt7P40rEaLV6q2sblTuU/izkJFcq4RX568=
+  file: '*.tar.gz'
+  skip_cleanup: true
+  on:
+    tags: true
+    repo: goodmind/infornography-carp
