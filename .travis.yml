@@ -24,6 +24,7 @@ before_install:
 - cd $HOME/Carp
 - stack build
 - stack install
+- cd -
 
 install:
 - echo "install"
