@@ -19,7 +19,8 @@ matrix:
 before_install:
 - mkdir -p ~/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
-- travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; brew install haskell-stack; fi
 - git clone https://github.com/carp-lang/Carp $HOME/Carp || true
 - cd $HOME/Carp
 - stack build
