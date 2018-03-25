@@ -15,13 +15,12 @@ before_install:
 - mkdir -p ~/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
 - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
-- git clone https://github.com/carp-lang/Carp
+- git clone https://github.com/carp-lang/Carp $HOME/Carp
 
 install:
 - echo "install"
 - stack
-- pwd
-- echo $HOME
+- ls $HOME/Carp
 
 script:
 - echo "script"
