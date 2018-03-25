@@ -11,6 +11,11 @@ addons:
     packages:
       - libgmp-dev
 
+matrix:
+  include:
+    - os: linux
+    - os: osx
+
 before_install:
 - mkdir -p ~/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
@@ -26,4 +31,4 @@ install:
 - pwd
 
 script:
-- echo "script"
+- carp -x infornography.carp
