@@ -25,6 +25,7 @@ before_install:
 - stack build
 - stack install
 - cd -
+- export CARP_DIR=$HOME/Carp
 
 install:
 - echo "install"
