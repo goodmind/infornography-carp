@@ -1,4 +1,4 @@
-(local-include "../getenv.h")
+(relative-include "../getenv.h")
 
 (defmodule Env
   (register getenv (Fn [&String] String))
